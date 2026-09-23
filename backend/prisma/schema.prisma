@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MORADOR
+  ADMIN
+}
+
+enum Status {
+  PENDENTE
+  CONFIRMADO
+  DESCARTADO
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(MORADOR)
+  createdAt    DateTime   @default(now())
+  sightings    Sighting[]
+}
+
+model Sighting {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  creature    String
+  location    String
+  sightedAt   DateTime
+  status      Status   @default(PENDENTE)
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([sightedAt])
+}
